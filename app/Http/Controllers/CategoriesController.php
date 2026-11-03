@@ -23,8 +23,18 @@ class CategoriesController extends Controller
         }
 
         return view('categories.index', [
-            'categories' => $categories->orderBy('name')->paginate(15)->withQueryString(),
+            'categories' => $categories->orderBy('name')->paginate(5)->withQueryString(),
         ]);
+    }
+
+    public function downloadPdf(Category $category)
+    {
+        $category->load(['items' => fn ($query) => $query->orderBy('nama')]);
+
+        return \Barryvdh\DomPDF\Facade\Pdf::loadView('categories.pdf', [
+            'category' => $category,
+            'printedAt' => now('Asia/Jakarta')->format('d/m/Y H:i:s').' WIB',
+        ])->setPaper('a4', 'landscape')->download('kategori-'.$category->id.'.pdf');
     }
 
     public function create()
@@ -42,6 +52,8 @@ class CategoriesController extends Controller
 
     public function show(Category $category)
     {
+        $category->load(['items' => fn ($query) => $query->orderBy('nama')]);
+
         return view('categories.show', compact('category'));
     }
 

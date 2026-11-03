@@ -5,6 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="form-group mb-2">
+                <a href="{{ route('master-items.excel') }}" class="btn btn-success">Download Excel</a>
                 <a href="{{url('master-items/form/new')}}" class="btn btn-secondary">+ Master Items Baru</a>
             </div>
             <div class="card">

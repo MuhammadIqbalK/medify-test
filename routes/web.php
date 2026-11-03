@@ -33,3 +33,6 @@ Route::get('/master-items/delete/{id}', [App\Http\Controllers\MasterItemsControl
 Route::get('/master-items/update-random-data', [App\Http\Controllers\MasterItemsController::class, 'updateRandomData']);
 
 Route::resource('categories', App\Http\Controllers\CategoriesController::class);
+
+Route::get('/categories/{category}/pdf', [App\Http\Controllers\CategoriesController::class, 'downloadPdf'])->name('categories.pdf');
+Route::get('/master-items/export/excel', [App\Http\Controllers\MasterItemsController::class, 'downloadExcel'])->name('master-items.excel');

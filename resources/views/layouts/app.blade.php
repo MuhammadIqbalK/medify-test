@@ -36,7 +36,7 @@
                             <a class="nav-link {{ request()->is('master-items*') ? 'active' : '' }}" href="{{ url('master-items') }}">Master Item</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('categories.*') ? 'active' : '' }}" href="{{ route('categories.index') }}">Categories</a>
+                            <a class="nav-link {{ request()->routeIs('categories.*') ? 'active' : '' }}" href="{{ route('categories.index') }}">Master Kategori</a>
                         </li>
 
                     </ul>
