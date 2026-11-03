@@ -2,39 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\CategoryPdf;
+use App\Http\Requests\FilterCategoriesRequest;
+use App\Http\Requests\SaveCategoryRequest;
 use App\Models\Category;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Queries\CategoryQuery;
+use App\Services\CategoryService;
 
 class CategoriesController extends Controller
 {
-    public function index(Request $request)
+    public function __construct(private CategoryService $categories)
     {
-        $filters = $request->validate([
-            'name' => ['nullable', 'string', 'max:255'],
-            'code' => ['nullable', 'string', 'max:255'],
-        ]);
-        $categories = Category::with('items');
-
-        foreach (['name', 'code'] as $field) {
-            if (isset($filters[$field]) && trim($filters[$field]) !== '') {
-                $categories->where($field, 'like', '%'.trim($filters[$field]).'%');
-            }
-        }
-
-        return view('categories.index', [
-            'categories' => $categories->orderBy('name')->paginate(5)->withQueryString(),
-        ]);
     }
 
-    public function downloadPdf(Category $category)
+    public function index(FilterCategoriesRequest $request, CategoryQuery $query)
     {
-        $category->load(['items' => fn ($query) => $query->orderBy('nama')]);
+        return view('categories.index', ['categories' => $query->paginate($request->validated())]);
+    }
 
-        return \Barryvdh\DomPDF\Facade\Pdf::loadView('categories.pdf', [
-            'category' => $category,
-            'printedAt' => now('Asia/Jakarta')->format('d/m/Y H:i:s').' WIB',
-        ])->setPaper('a4', 'landscape')->download('kategori-'.$category->id.'.pdf');
+    public function downloadPdf(Category $category, CategoryPdf $export)
+    {
+        return $export->download($category);
     }
 
     public function create()
@@ -42,9 +30,9 @@ class CategoriesController extends Controller
         return view('categories.form', ['category' => new Category]);
     }
 
-    public function store(Request $request)
+    public function store(SaveCategoryRequest $request)
     {
-        $category = Category::create($this->validatedData($request));
+        $category = $this->categories->create($request->validated());
 
         return redirect()->route('categories.show', $category)
             ->with('status', 'Kategori berhasil ditambahkan.');
@@ -62,9 +50,9 @@ class CategoriesController extends Controller
         return view('categories.form', compact('category'));
     }
 
-    public function update(Request $request, Category $category)
+    public function update(SaveCategoryRequest $request, Category $category)
     {
-        $category->update($this->validatedData($request));
+        $this->categories->update($category, $request->validated());
 
         return redirect()->route('categories.show', $category)
             ->with('status', 'Kategori berhasil diperbarui.');
@@ -72,20 +60,9 @@ class CategoriesController extends Controller
 
     public function destroy(Category $category)
     {
-        DB::transaction(function () use ($category) {
-            $category->categoryItems()->delete();
-            $category->delete();
-        });
+        $this->categories->delete($category);
 
         return redirect()->route('categories.index')
             ->with('status', 'Kategori berhasil dihapus.');
-    }
-
-    private function validatedData(Request $request): array
-    {
-        return $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', 'max:255'],
-        ]);
     }
 }
