@@ -9,6 +9,8 @@
             <th>Harga Beli</th>
             <th>Harga Jual</th>
             <th>Supplier</th>
+            <th>Categories</th>
+            <th>Image</th>
             <th>View</th>
         </tr>
     </thead>

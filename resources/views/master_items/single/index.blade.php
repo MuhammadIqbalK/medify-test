@@ -42,6 +42,23 @@
                             <td>:</td>
                             <td>{{$data->jenis}}</td>
                         </tr>
+                        <tr>
+                            <th>Categories</th><td>:</td>
+                            <td>
+                                @forelse ($data->categories as $category)
+                                    <a href="{{ route('categories.show', $category) }}" class="badge bg-secondary">{{ $category->name }}</a>
+                                @empty
+                                    Belum ada kategori.
+                                @endforelse
+                            </td>
+                        </tr>
+                        <tr><th>Image</th><td>:</td><td>
+                            @if ($data->image_url)
+                                <img src="{{ $data->image_url }}" alt="Foto {{ $data->nama }}" class="img-thumbnail" style="max-height: 240px">
+                            @else
+                                <span class="text-muted">Belum ada foto.</span>
+                            @endif
+                        </td></tr>
                     </table>
                     <a class="btn btn-info" href="{{url('master-items/form/edit')}}/{{$data->id}}">Edit</a>
                     <a class="btn btn-danger" href="{{url('master-items/delete')}}/{{$data->id}}" onclick="return confirm('Are you sure you want to delete this item?');">Delete</a>

@@ -15,14 +15,14 @@
         </div>
         <div class="col-2">
             <div class="form-group" id="filter-container">
-                <label>Harga Min</label>
-                <input type="number" class="form-control" id="filter-harga-min">
+                <label>Harga Beli Min</label>
+                <input type="number" min="0" class="form-control" id="filter-harga-min">
             </div>
         </div>
         <div class="col-2">
             <div class="form-group" id="filter-container">
-                <label>Harga Max</label>
-                <input type="number" class="form-control" id="filter-harga-max">
+                <label>Harga Beli Max</label>
+                <input type="number" min="0" class="form-control" id="filter-harga-max">
             </div>
         </div>
     </div>

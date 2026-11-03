@@ -35,32 +35,34 @@
             dataType: 'json',
             tryCount: 0,
             retryLimit: 3,
-            data: 'kode=' + filter_kode + '&nama=' + filter_nama + '&hargamin=' + filter_harga_min + '&hargamax=' + filter_harga_max,
+            data: { kode: filter_kode, nama: filter_nama, hargamin: filter_harga_min, hargamax: filter_harga_max },
             success: function(results) {
                 var data = results.data
 
                 $.each(data, function(index, item) {
-                    array_temp = [];
-                    var harga_jual = item.harga_beli + item.harga_beli * item.laba / 100;
-                    harga_jual = Math.round(harga_jual)
-                    var kode = item.kode;
-
-                    var html = `<a href="{{url('master-items/view/')}}/` + kode + `" class="btn btn-primary">View</a>`
-
-                    $.each(item, function(obj_name, obj_value) {
-                        if (obj_name == 'laba') return false;
-                        array_temp.push(obj_value)
-                    })
-                    array_temp.push(harga_jual)
-                    array_temp.push(item.supplier)
-                    array_temp.push(html)
-
+                    const escapeText = value => $('<div>').text(value == null ? '' : value).html();
+                    const harga_jual = Math.round(item.harga_beli + item.harga_beli * item.laba / 100);
+                    const html = '<a href="{{ url('master-items/view') }}/' + encodeURIComponent(item.kode) + '" class="btn btn-primary">View</a>';
+                    const photo = item.image_url
+                        ? $('<img>').attr({ src: item.image_url, alt: 'Foto ' + item.nama, loading: 'lazy', width: 64, height: 64 }).css('object-fit', 'cover').addClass('img-thumbnail').prop('outerHTML')
+                        : '<span class="text-muted">Belum ada foto.</span>';
+                    const array_temp = [
+                        escapeText(item.kode), escapeText(item.nama), escapeText(item.jenis),
+                        escapeText(item.harga_beli), harga_jual, escapeText(item.supplier),
+                        escapeText(item.categories.map(category => category.name).join(', ') || 'Belum ada kategori.'),
+                        photo, html
+                    ];
 
                     dataTableObj.row.add(array_temp).draw(true);
                 });
                 $('#loading-filter').hide();
             },
             error: function(xhr, textStatus, errorThrown) {
+                if (xhr.status === 422) {
+                    alert(Object.values(xhr.responseJSON.errors).flat().join('\n'));
+                    $('#loading-filter').hide();
+                    return;
+                }
                 this.tryCount++;
                 if (this.tryCount <= this.retryLimit) {
                     $.ajax(this);
